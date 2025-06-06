@@ -87,44 +87,45 @@ def cmd_myrank(update: Update, ctx: CallbackContext):
     update.message.reply_text("You have no logged approaches this week.")
 
 def cmd_set(update: Update, ctx: CallbackContext):
-    admin_id = update.effective_user.id
-    if admin_id not in ADMINS:
-        update.message.reply_text("⛔ You’re not an admin.")
-        return
+    """Admin-only: adjust someone’s weekly total."""
+    admin = update.effective_user.id
+    if admin not in ADMINS:
+        update.message.reply_text("⛔ You’re not an admin.");  return
 
-    # Determine target user and new value
+    # ── Parse arguments ──────────────────────────────────────────
     if update.message.reply_to_message and len(ctx.args) == 1:
-        # Usage: reply to someone's message with "/set 5"
+        # form: reply » /set 5
         target_uid = update.message.reply_to_message.from_user.id
         new_val    = ctx.args[0]
     elif len(ctx.args) == 2:
         target, new_val = ctx.args
+        # allow @username or raw numeric id
         if target.startswith("@"):
             try:
-                target_uid = bot.get_chat(target).id
+                target_uid = bot.get_chat(target).id     # resolves @username
             except Exception:
-                update.message.reply_text("User not found.")
-                return
+                update.message.reply_text("User not found.");  return
         else:
-            try:
-                target_uid = int(target)
-            except ValueError:
-                update.message.reply_text("First argument must be @username or numeric ID.")
-                return
+            if not target.lstrip("-").isdigit():
+                update.message.reply_text("First arg must be user-ID or @username.");  return
+            target_uid = int(target)
     else:
-        update.message.reply_text("Usage:\n"
-                                  "‣ /set <user_id|@username> <number>\n"
-                                  "‣ (or) reply to a message: /set <number>")
+        update.message.reply_text(
+            "Usage:\n"
+            "• /set <user_id|@username> <number>\n"
+            "• or reply to a user’s message:  /set <number>")
         return
 
+    # ── Validate new value ──────────────────────────────────────
     if not new_val.isdigit():
-        update.message.reply_text("Second argument must be a number.")
-        return
-
+        update.message.reply_text("Second argument must be an integer.");  return
     new_val = int(new_val)
+
+    # ── Apply & confirm ─────────────────────────────────────────
     approach_log[target_uid] = [(new_val, dt.datetime.utcnow())]
     name_cache.setdefault(target_uid, f"User {target_uid}")
-    update.message.reply_text(f"✅ Count for {name_cache[target_uid]} set to {new_val}.")
+    update.message.reply_text(
+        f"✅ Set {name_cache[target_uid]}'s count to {new_val}.")
 
 def cmd_reset(update: Update, ctx: CallbackContext):
     if is_admin(update.effective_user.id):
