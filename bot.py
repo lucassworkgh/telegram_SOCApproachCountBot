@@ -64,11 +64,8 @@ dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, log_messa
 def index():
     return "Bot is running", 200
 
-# === SET WEBHOOK ON START ===
-@app.before_first_request
-def set_webhook():
-    webhook_url = os.getenv("WEBHOOK_URL")
-    bot.set_webhook(url=f"{webhook_url}/{TOKEN}")
+# === SET WEBHOOK ON START(deleted) ===
+
 
 # === RUN FLASK APP ===
 if __name__ == "__main__":
