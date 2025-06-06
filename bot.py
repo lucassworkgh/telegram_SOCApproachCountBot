@@ -7,7 +7,7 @@ import re
 import os
 
 # === CONFIG ===
-TOKEN = os.getenv("BOT_TOKEN")
+TOKEN = os.getenv("7816567657:AAGR0SIbsRu_ShJMzmxvzHl6ZXPKDTZuZUE")
 bot = Bot(token=TOKEN)
 approach_log = defaultdict(list)
 GROUP_CHAT_ID = os.getenv("GROUP_CHAT_ID")  # Use full -100... ID
