@@ -57,12 +57,7 @@ def leaderboard(update, context):
 dispatcher.add_handler(CommandHandler("leaderboard", leaderboard))
 dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, log_message))
 
-# === FLASK ROUTE TO HANDLE UPDATES ===
-@app.route(f"/{TOKEN}", methods=["POST"])
-def webhook():
-    update = Update.de_json(request.get_json(force=True), bot)
-    dispatcher.process_update(update)
-    return "OK", 200
+# === FLASK ROUTE TO HANDLE UPDATES(deleted) ===
 
 # === ROOT ROUTE (OPTIONAL) ===
 @app.route("/", methods=["GET"])
