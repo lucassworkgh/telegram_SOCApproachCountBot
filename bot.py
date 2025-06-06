@@ -77,4 +77,8 @@ def set_webhook():
 
 # === RUN FLASK APP ===
 if __name__ == "__main__":
+    webhook_url = os.getenv("WEBHOOK_URL")
+    full_url = f"{webhook_url}/{TOKEN}"
+    bot.set_webhook(url=full_url)
+    print(f"Webhook set to: {full_url}")
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
