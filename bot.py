@@ -87,25 +87,44 @@ def cmd_myrank(update: Update, ctx: CallbackContext):
     update.message.reply_text("You have no logged approaches this week.")
 
 def cmd_set(update: Update, ctx: CallbackContext):
-    if not is_admin(update.effective_user.id):
+    admin_id = update.effective_user.id
+    if admin_id not in ADMINS:
+        update.message.reply_text("⛔ You’re not an admin.")
         return
-    if len(ctx.args) != 2 or not ctx.args[1].isdigit():
-        update.message.reply_text("Usage: /set <user_id|@username> <number>")
-        return
-    target, num = ctx.args
-    num = int(num)
-    uid = None
-    if target.startswith("@"):
-        try:
-            uid = bot.get_chat(target).id
-        except Exception:
-            update.message.reply_text("User not found.")
-            return
+
+    # Determine target user and new value
+    if update.message.reply_to_message and len(ctx.args) == 1:
+        # Usage: reply to someone's message with "/set 5"
+        target_uid = update.message.reply_to_message.from_user.id
+        new_val    = ctx.args[0]
+    elif len(ctx.args) == 2:
+        target, new_val = ctx.args
+        if target.startswith("@"):
+            try:
+                target_uid = bot.get_chat(target).id
+            except Exception:
+                update.message.reply_text("User not found.")
+                return
+        else:
+            try:
+                target_uid = int(target)
+            except ValueError:
+                update.message.reply_text("First argument must be @username or numeric ID.")
+                return
     else:
-        uid = int(target)
-    approach_log[uid] = [(num, dt.datetime.utcnow())]
-    name_cache.setdefault(uid, f"User {uid}")
-    update.message.reply_text("Count updated.")
+        update.message.reply_text("Usage:\n"
+                                  "‣ /set <user_id|@username> <number>\n"
+                                  "‣ (or) reply to a message: /set <number>")
+        return
+
+    if not new_val.isdigit():
+        update.message.reply_text("Second argument must be a number.")
+        return
+
+    new_val = int(new_val)
+    approach_log[target_uid] = [(new_val, dt.datetime.utcnow())]
+    name_cache.setdefault(target_uid, f"User {target_uid}")
+    update.message.reply_text(f"✅ Count for {name_cache[target_uid]} set to {new_val}.")
 
 def cmd_reset(update: Update, ctx: CallbackContext):
     if is_admin(update.effective_user.id):
