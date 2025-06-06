@@ -63,12 +63,13 @@ def is_admin(user_id):
 # ── COMMANDS ────────────────────────────────────────────────────────────────
 def cmd_start(update: Update, ctx: CallbackContext):
     update.message.reply_text(
-        "👋 I’m the Approach-Counter Bot.\n"
-        "• Log an approach:  `approaches: 3`\n"
-        "• /leaderboard  – show this week’s board\n"
-        "• /myrank       – your current position\n"
-        "Admins: /set <user_id|@username> <number>, /reset",
-        parse_mode='Markdown'
+        "👋 I’m the Approach Counter Bot.\n\n"
+        "• Log approaches by sending:  approaches: {number}\n"
+        "• /leaderboard   – show this week’s rankings\n"
+        "• /myrank        – see your position (DM only)\n\n"
+        "Admins:\n"
+        "  /set <user_id or @username> <number>\n"
+        "  /reset          – clear this week’s data"
     )
 
 def cmd_leaderboard(update: Update, ctx: CallbackContext):
@@ -118,6 +119,14 @@ def on_message(update: Update, ctx: CallbackContext):
     count = extract_approaches(update.message.text)
     if count:
         approach_log[uid].append((count, dt.datetime.utcnow()))
+    if count and update.message.chat.type.endswith("group") and not update.message.chat.get_member(bot.id).can_read_all_group_messages:
+    # bot can't actually read, probably privacy ON
+    for aid in ADMINS:
+        bot.send_message(aid,
+            "❗️I couldn’t log an approach because I have no message access. "
+            "Disable privacy in @BotFather: Settings → Group Privacy → OFF."
+        )
+    return
 
 def greet_group(update: Update, ctx: CallbackContext):
     chat = update.my_chat_member.chat
@@ -157,6 +166,12 @@ dispatcher.add_handler(CommandHandler("set",        cmd_set, Filters.chat_type.g
 dispatcher.add_handler(CommandHandler("reset",      cmd_reset, Filters.chat_type.groups))
 dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, on_message))
 dispatcher.add_handler(ChatMemberHandler(greet_group, ChatMemberHandler.MY_CHAT_MEMBER))
+def err_handler(update, ctx):  # logs & pings first admin
+    print("ERROR:", ctx.error)
+    if ADMINS:
+        bot.send_message(next(iter(ADMINS)), f"⚠️ Bot error:\n{ctx.error}")
+
+dispatcher.add_error_handler(err_handler)
 
 # ── SCHEDULER STARTUP ───────────────────────────────────────────────────────
 def start_scheduler():
