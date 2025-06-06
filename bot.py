@@ -120,13 +120,13 @@ def on_message(update: Update, ctx: CallbackContext):
     if count:
         approach_log[uid].append((count, dt.datetime.utcnow()))
     if count and update.message.chat.type.endswith("group") and not update.message.chat.get_member(bot.id).can_read_all_group_messages:
-    # bot can't actually read, probably privacy ON
-    for aid in ADMINS:
-        bot.send_message(aid,
-            "❗️I couldn’t log an approach because I have no message access. "
-            "Disable privacy in @BotFather: Settings → Group Privacy → OFF."
-        )
-    return
+        # bot can't actually read, probably privacy ON
+        for aid in ADMINS:
+            bot.send_message(aid,
+                "❗️I couldn’t log an approach because I have no message access. "
+                "Disable privacy in @BotFather: Settings → Group Privacy → OFF."
+            )
+        return
 
 def greet_group(update: Update, ctx: CallbackContext):
     chat = update.my_chat_member.chat
