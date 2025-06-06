@@ -13,7 +13,7 @@ TOKEN          = os.getenv("BOT_TOKEN")               # set in Render env-vars
 WEBHOOK_URL    = os.getenv("WEBHOOK_URL")             # e.g. https://xxx.onrender.com
 GROUP_CHAT_ID  = int(os.getenv("GROUP_CHAT_ID", "0")) # optional but advised
 WEBHOOK_PATH   = "webhook"
-ADMINS         = {8196347208, -1002521364218}               # <<< put your numeric IDs here
+ADMINS         = {8196347208, -1002521364218, 7973781893}               # <<< put your numeric IDs here
 
 DATA_DIR       = pathlib.Path("leaderboards")
 DATA_DIR.mkdir(exist_ok=True)
