@@ -72,7 +72,7 @@ def index():
 # === SET WEBHOOK ON START ===
 @app.before_first_request
 def set_webhook():
-    webhook_url = os.getenv("WEBHOOK_URL")
+    webhook_url = os.getenv("https://telegram-socapproachcountbot.onrender.com")
     bot.set_webhook(url=f"{webhook_url}/{TOKEN}")
 
 # === RUN FLASK APP ===
