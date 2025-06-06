@@ -7,7 +7,7 @@ import re
 import os
 
 # === CONFIG ===
-
+TOKEN = os.getenv("BOT_TOKEN")
 bot = Bot(token=TOKEN)
 approach_log = defaultdict(list)
 GROUP_CHAT_ID = os.getenv("GROUP_CHAT_ID")  # Use full -100... ID
@@ -72,7 +72,7 @@ def index():
 # === SET WEBHOOK ON START ===
 @app.before_first_request
 def set_webhook():
-    webhook_url = os.getenv("https://telegram-socapproachcountbot.onrender.com")
+    webhook_url = os.getenv("WEBHOOK_URL")
     bot.set_webhook(url=f"{webhook_url}/{TOKEN}")
 
 # === RUN FLASK APP ===
